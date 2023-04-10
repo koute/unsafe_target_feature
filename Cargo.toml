@@ -1,6 +1,6 @@
 [package]
 name = "unsafe_target_feature"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 authors = ["Jan Bujak <j@exia.io>"]
