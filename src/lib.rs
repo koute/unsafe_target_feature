@@ -381,10 +381,15 @@ fn process_function(
 
     let mut maybe_inline = quote::quote! {};
     let mut maybe_outer_attributes = Vec::new();
+    let mut maybe_cfg = quote::quote! {};
     for attribute in function.attrs {
         match &attribute.meta {
             syn::Meta::Path(path) if is_path_eq(path, "inline") => {
                 maybe_inline = quote::quote! { #[inline] };
+            }
+            syn::Meta::Path(path) if is_path_eq(path, "test") => {
+                maybe_outer_attributes.push(attribute);
+                maybe_cfg = quote::quote! { #[cfg(target_feature = #attributes)] };
             }
             syn::Meta::List(syn::MetaList { path, tokens, .. })
                 if is_path_eq(path, "inline") && tokens.to_string() == "always" =>
@@ -446,6 +451,7 @@ fn process_function(
     } else {
         quote::quote! {
             #[inline(always)]
+            #maybe_cfg
             #(#maybe_outer_attributes)*
             #function_visibility fn #function_name #fn_impl_generics (#(#function_args_outer),*) #function_return #fn_where_clause {
                 #[target_feature(enable = #attributes)]

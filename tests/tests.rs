@@ -107,6 +107,35 @@ mod inner_spec {
     pub fn spec_function(a: u32, b: u32) -> u32 {
         a - b - CONST
     }
+
+    #[for_target_feature("sse2")]
+    const IS_AVX2: bool = false;
+
+    #[for_target_feature("avx2")]
+    const IS_AVX2: bool = true;
+
+    #[test]
+    fn test_specialized() {
+        assert!(!IS_AVX2);
+    }
+
+    #[cfg(test)]
+    mod tests {
+        #[test]
+        fn test_specialized_inner() {
+            assert!(!super::IS_AVX2);
+        }
+    }
+}
+
+#[unsafe_target_feature("sse2")]
+#[test]
+fn test_sse2_only() {}
+
+#[unsafe_target_feature("avx2")]
+#[test]
+fn test_avx2_only() {
+    compile_error!();
 }
 
 #[test]
